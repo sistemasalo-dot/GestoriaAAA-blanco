@@ -1,0 +1,1744 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GESTORIA AAA, S.C. — Propuesta 5: Liquid Glass Blanco</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@300;400;500;700;800;900&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+  <!-- Prerender hint para scroll suave -->
+  <meta name="color-scheme" content="light" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      /* Paleta blanco / perla — Propuesta 5 */
+      --p-900: #1a2b3c;
+      --p-800: #2c4055;
+      --p-700: #3d5a78;
+      --p-600: #4e749a;
+      --p-500: #6290b8;
+      --p-400: #7aadd4;
+      --p-300: #96c6e8;
+      --p-200: #c2dff4;
+      --p-accent: #3b8fd4;
+
+      --bg-1: #f5f7fa;
+      --bg-2: #edf0f5;
+      --white: #ffffff;
+      --ink: #1a2b3c;
+      --ink-mid: #4a6580;
+      --ink-soft: #8aa0b8;
+      --blue: #3b8fd4;
+      --blue-2: #1a6fb0;
+      --cyan: #0090bb;
+      --teal: #007a9e;
+
+      /* Liquid Glass tokens — modo claro */
+      --lg-bg: rgba(255,255,255,0.55);
+      --lg-bg-hover: rgba(255,255,255,0.75);
+      --lg-border: rgba(255,255,255,0.85);
+      --lg-border-bright: rgba(255,255,255,0.95);
+      --lg-shadow: rgba(59,100,180,0.12);
+      --lg-specular: rgba(255,255,255,0.9);
+      --lg-glow: rgba(59,143,212,0.15);
+      --lg-blur: blur(20px) saturate(160%);
+
+      --radius: 22px;
+      --radius-sm: 12px;
+      --radius-pill: 999px;
+      --font-display: 'Cabinet Grotesk', sans-serif;
+      --font-serif: 'Instrument Serif', serif;
+      --font-body: 'Cabinet Grotesk', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; overflow-x: hidden; }
+    body {
+      background: var(--bg-1);
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.6;
+      overflow-x: hidden;
+      text-rendering: optimizeSpeed;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    /* Forzar fondo claro en todo */
+    html { background: #f5f7fa; }
+
+    ::-webkit-scrollbar { width: 3px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(59,143,212,.3); border-radius: 3px; }
+
+    /* ── AMBIENT BACKGROUND ─────────────────── */
+    .ambient {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      overflow: hidden;
+      contain: strict;
+    }
+    .ambient-orb {
+      position: absolute;
+      border-radius: 50%;
+      will-change: transform;
+      /* Blur dentro del gradiente en lugar de filter:blur() — mucho más barato en GPU */
+    }
+    .orb-1 {
+      width: 900px; height: 700px;
+      background: radial-gradient(circle, rgba(59,143,212,.18) 0%, rgba(59,143,212,.05) 45%, transparent 65%);
+      top: -200px; left: -200px;
+      animation: orbFloat1 20s ease-in-out infinite alternate;
+    }
+    .orb-2 {
+      width: 700px; height: 700px;
+      background: radial-gradient(circle, rgba(150,198,232,.22) 0%, transparent 60%);
+      top: 10%; right: -200px;
+      animation: orbFloat2 25s ease-in-out infinite alternate;
+    }
+    .orb-3 {
+      width: 600px; height: 500px;
+      background: radial-gradient(circle, rgba(194,223,244,.25) 0%, transparent 60%);
+      bottom: 0; left: 30%;
+      animation: orbFloat3 18s ease-in-out infinite alternate;
+    }
+    /* orb-4 eliminado — 3 orbs son suficientes y más ligero */
+    @keyframes orbFloat1 { 0%{transform:translate3d(0,0,0) scale(1)} 100%{transform:translate3d(60px,40px,0) scale(1.08)} }
+    @keyframes orbFloat2 { 0%{transform:translate3d(0,0,0)} 100%{transform:translate3d(-50px,60px,0)} }
+    @keyframes orbFloat3 { 0%{transform:translate3d(0,0,0)} 100%{transform:translate3d(40px,-50px,0)} }
+
+    /* Noise overlay removido — SVG feTurbulence es costoso en repaint continuo */
+
+    /* ── LIQUID GLASS MIXIN ──────────────────────────── */
+    .glass {
+      background: rgba(255,255,255,0.55);
+      backdrop-filter: blur(20px) saturate(160%);
+      -webkit-backdrop-filter: blur(20px) saturate(160%);
+      border: 1px solid rgba(255,255,255,0.85);
+      box-shadow:
+        0 2px 0 0 rgba(255,255,255,0.9) inset,
+        0 -1px 0 0 rgba(0,0,0,0.06) inset,
+        0 20px 60px rgba(59,100,180,0.1),
+        0 0 0 0.5px rgba(0,0,0,0.04);
+    }
+
+    /* ── NAV ─────────────────────────────────── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 300;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.9rem 5vw;
+      background: rgba(255,255,255,0.72);
+      backdrop-filter: blur(20px) saturate(160%);
+      -webkit-backdrop-filter: blur(20px) saturate(160%);
+      border-bottom: 1px solid rgba(59,143,212,0.12);
+      transition: background .4s, box-shadow .4s;
+      will-change: background;
+    }
+    nav.scrolled {
+      background: rgba(255,255,255,0.88);
+      box-shadow: 0 8px 40px rgba(59,100,180,0.1), 0 1px 0 rgba(255,255,255,0.9) inset;
+    }
+
+    .nav-logo {
+      text-decoration: none; flex-shrink: 0;
+      display: flex; align-items: center;
+      opacity: 0.9; transition: opacity .2s;
+    }
+    .nav-logo:hover { opacity: 1; }
+
+    .nav-center {
+      display: flex; gap: 0.25rem; list-style: none; align-items: center;
+    }
+    .nav-center a {
+      font-size: 0.78rem; font-weight: 500;
+      color: rgba(30,50,80,0.6);
+      text-decoration: none;
+      letter-spacing: 0.02em;
+      padding: 0.4rem 0.9rem;
+      border-radius: var(--radius-pill);
+      transition: color .2s, background .2s;
+    }
+    .nav-center a:hover {
+      color: var(--ink);
+      background: rgba(59,143,212,0.08);
+    }
+
+    .nav-actions { display: flex; align-items: center; gap: 0.75rem; }
+    .nav-cta {
+      background: rgba(59,143,212,0.08);
+      border: 1px solid rgba(59,143,212,0.25);
+      backdrop-filter: blur(12px);
+      color: var(--blue);
+      padding: 0.5rem 1.25rem;
+      border-radius: var(--radius-pill);
+      font-size: 0.78rem; font-weight: 600;
+      text-decoration: none; white-space: nowrap;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.9) inset, 0 4px 14px rgba(59,143,212,0.1);
+      transition: background .2s, border-color .2s, transform .2s, box-shadow .2s;
+    }
+    .nav-cta:hover {
+      background: rgba(59,143,212,0.15);
+      border-color: rgba(59,143,212,0.4);
+      transform: translate3d(0,-1px,0);
+      box-shadow: 0 1px 0 rgba(255,255,255,0.9) inset, 0 8px 24px rgba(59,143,212,0.2);
+    }
+    .nav-cta-filled {
+      background: linear-gradient(135deg, var(--blue), #004f8a);
+      border-color: transparent;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.25) inset, 0 4px 18px rgba(59,126,248,.45);
+    }
+    .nav-cta-filled:hover {
+      background: linear-gradient(135deg, #5aaee8, #1a6fb0);
+      border-color: transparent;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.25) inset, 0 8px 28px rgba(59,126,248,.6);
+    }
+
+    /* Hamburger */
+    .hamburger {
+      display: none; flex-direction: column; gap: 5px;
+      cursor: pointer; background: none; border: none; padding: 6px;
+      flex-shrink: 0; z-index: 301;
+    }
+    .hamburger span {
+      display: block; width: 22px; height: 2px;
+      background: var(--ink); border-radius: 2px;
+      transition: transform .3s, opacity .3s, width .3s;
+      transform-origin: center;
+    }
+    /* Hamburger → X animation */
+    .hamburger.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.active span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .hamburger.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* ── MOBILE MENU ─────────────────────────── */
+    .mobile-menu {
+      position: fixed; inset: 0; z-index: 299;
+      background: rgba(245,247,250,0.92);
+      backdrop-filter: blur(24px) saturate(160%);
+      -webkit-backdrop-filter: blur(24px) saturate(160%);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 1.5rem; padding: 2rem;
+      opacity: 0; pointer-events: none;
+      transition: opacity .3s ease;
+      will-change: opacity;
+    }
+    .mobile-menu.open {
+      opacity: 1; pointer-events: auto;
+    }
+    .mobile-menu a {
+      font-family: var(--font-display);
+      font-size: clamp(1.6rem, 7vw, 2.5rem);
+      font-weight: 800; color: rgba(26,43,60,0.85);
+      text-decoration: none;
+      letter-spacing: -0.03em;
+      transition: color .2s, transform .2s;
+      transform: translateY(20px);
+      opacity: 0;
+      transition: transform .4s ease, opacity .4s ease, color .2s;
+    }
+    .mobile-menu.open a {
+      transform: translateY(0); opacity: 1;
+    }
+    .mobile-menu.open a:nth-child(1) { transition-delay: .05s; }
+    .mobile-menu.open a:nth-child(2) { transition-delay: .1s; }
+    .mobile-menu.open a:nth-child(3) { transition-delay: .15s; }
+    .mobile-menu.open a:nth-child(4) { transition-delay: .2s; }
+    .mobile-menu.open a:nth-child(5) { transition-delay: .25s; }
+    .mobile-menu.open a:nth-child(6) { transition-delay: .3s; }
+    .mobile-menu a:hover { color: var(--blue); transform: translateY(-2px); }
+    .mobile-cta-wrap { margin-top: 0.5rem; }
+    .mobile-cta-wrap a {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--blue), #004f8a) !important;
+      padding: 0.9rem 2.5rem !important;
+      border-radius: var(--radius-pill) !important;
+      font-size: 1rem !important;
+      color: #fff !important;
+      box-shadow: 0 8px 32px rgba(59,126,248,0.4);
+    }
+
+    /* ── REVEAL ANIMATION ────────────────────── */
+    .reveal { opacity: 0; transform: translate3d(0, 20px, 0); transition: opacity .6s ease, transform .6s ease; will-change: opacity, transform; }
+    .reveal.visible { opacity: 1; transform: translate3d(0, 0, 0); will-change: auto; }
+    .js-ready .reveal { }
+
+    /* ── HERO ────────────────────────────────── */
+    #hero {
+      position: relative; z-index: 1;
+      min-height: 100svh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: stretch;
+      padding: 0 !important;
+    }
+
+    .hero-text {
+      display: flex; flex-direction: column; justify-content: center;
+      padding: calc(64px + 5rem) 5vw 5rem 5vw;
+      animation: fadeUp 1s ease both;
+    }
+
+    .hero-badge-pill {
+      display: inline-flex; align-items: center; gap: 0.6rem;
+      background: rgba(255,255,255,0.75);
+      border: 1px solid rgba(59,143,212,0.2);
+      backdrop-filter: blur(12px);
+      padding: 0.35rem 1rem 0.35rem 0.5rem;
+      border-radius: var(--radius-pill);
+      margin-bottom: 2rem;
+      width: fit-content;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.9) inset, 0 4px 12px rgba(59,143,212,0.1);
+    }
+    .badge-dot {
+      width: 20px; height: 20px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--blue), var(--cyan));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.65rem; box-shadow: 0 2px 8px rgba(59,143,212,.4);
+    }
+    .badge-text {
+      font-size: 0.7rem; font-weight: 600;
+      color: rgba(26,43,60,0.7);
+      letter-spacing: 0.1em; text-transform: uppercase;
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.5rem, 5vw, 5rem);
+      font-weight: 900; line-height: 1.02;
+      letter-spacing: -0.045em; color: var(--ink);
+      margin-bottom: 1.75rem;
+    }
+    .hero-title em {
+      font-style: normal;
+      font-family: var(--font-serif);
+      font-weight: 400;
+      background: linear-gradient(110deg, var(--blue-2) 0%, var(--cyan) 50%, var(--blue) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+
+    .hero-desc {
+      font-size: clamp(0.95rem, 1.4vw, 1.05rem);
+      color: var(--ink-mid); font-weight: 400;
+      max-width: 420px; margin-bottom: 2.5rem;
+      line-height: 1.85;
+    }
+
+    .hero-actions { display: flex; gap: 0.875rem; flex-wrap: wrap; }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--blue), #004f8a);
+      color: var(--white); padding: 0.875rem 1.75rem;
+      border-radius: var(--radius-pill);
+      font-size: 0.9rem; font-weight: 700;
+      text-decoration: none;
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.25) inset, 0 8px 28px rgba(59,126,248,.4);
+      transition: transform .2s, box-shadow .2s, opacity .2s;
+    }
+    .btn-primary:hover { transform: translate3d(0,-2px,0); box-shadow: 0 1px 0 rgba(255,255,255,0.25) inset, 0 14px 40px rgba(59,126,248,.55); opacity:.95; }
+
+    .btn-glass {
+      background: rgba(255,255,255,0.65);
+      border: 1px solid rgba(59,143,212,0.2);
+      backdrop-filter: blur(12px);
+      color: var(--ink-mid); padding: 0.875rem 1.75rem;
+      border-radius: var(--radius-pill);
+      font-size: 0.9rem; font-weight: 600;
+      text-decoration: none;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.9) inset, 0 4px 16px rgba(59,143,212,0.1);
+      transition: background .2s, border-color .2s, color .2s, transform .2s;
+    }
+    .btn-glass:hover {
+      background: rgba(255,255,255,0.85);
+      border-color: rgba(59,143,212,0.35);
+      color: var(--ink);
+      transform: translate3d(0,-1px,0);
+    }
+
+    /* Hero Visual */
+    .hero-visual {
+      position: relative; overflow: hidden;
+      background: linear-gradient(145deg, #daeaf7 0%, #c8dff2 100%);
+      animation: fadeIn 1.4s ease both;
+      transform: translateZ(0);
+      isolation: isolate;
+    }
+    .hero-visual-grid {
+      position: absolute; inset: 0;
+      background:
+        repeating-linear-gradient(0deg, transparent, transparent 79px, rgba(59,143,212,0.06) 79px, rgba(59,143,212,0.06) 80px),
+        repeating-linear-gradient(90deg, transparent, transparent 79px, rgba(59,143,212,0.06) 79px, rgba(59,143,212,0.06) 80px);
+    }
+    .hero-glow-main {
+      position: absolute; width: 500px; height: 500px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(59,143,212,.22) 0%, rgba(59,143,212,.05) 50%, transparent 70%);
+      top: 50%; left: 50%; transform: translate3d(-50%,-50%,0);
+    }
+    .hero-glow-accent {
+      position: absolute; width: 250px; height: 250px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,144,187,.18) 0%, transparent 60%);
+      top: 20%; right: 10%;
+    }
+    .hero-glow-teal {
+      position: absolute; width: 200px; height: 200px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,.5) 0%, transparent 60%);
+      bottom: 20%; left: 10%;
+    }
+
+    /* Big watermark */
+    .hero-watermark {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      font-family: var(--font-display); font-size: clamp(7rem,18vw,18rem);
+      font-weight: 900; color: rgba(59,143,212,0.06);
+      white-space: nowrap; pointer-events: none; letter-spacing: -0.06em;
+      user-select: none;
+    }
+
+    /* Floating glass card in hero */
+    .hero-float-card {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate3d(-50%,-50%,0);
+      width: min(360px, 85%);
+      background: rgba(255,255,255,0.65);
+      backdrop-filter: blur(20px) saturate(160%);
+      -webkit-backdrop-filter: blur(20px) saturate(160%);
+      border: 1px solid rgba(255,255,255,0.9);
+      border-radius: 24px;
+      padding: 2rem;
+      box-shadow:
+        0 2px 0 rgba(255,255,255,0.95) inset,
+        0 -1px 0 rgba(59,143,212,0.08) inset,
+        0 30px 80px rgba(59,100,180,0.15),
+        0 0 0 0.5px rgba(59,143,212,0.1);
+    }
+    .float-card-label {
+      font-size: 0.65rem; font-weight: 700;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: rgba(26,43,60,0.45); margin-bottom: 1.25rem;
+    }
+    .float-card-stats {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: rgba(59,143,212,0.12);
+      border-radius: 14px; overflow: hidden;
+      margin-bottom: 1.25rem;
+    }
+    .float-stat {
+      background: rgba(255,255,255,0.8);
+      padding: 1.25rem; text-align: center;
+    }
+    .float-stat-num {
+      font-family: var(--font-display);
+      font-size: 2rem; font-weight: 900;
+      line-height: 1; margin-bottom: 0.2rem;
+      background: linear-gradient(90deg, var(--blue-2), var(--cyan));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .float-stat-label {
+      font-size: 0.62rem; color: rgba(26,43,60,0.4);
+      letter-spacing: 0.06em; text-transform: uppercase;
+    }
+    .float-progress {
+      background: rgba(255,255,255,0.6);
+      border-radius: 8px; overflow: hidden;
+      padding: 1rem;
+      border: 1px solid rgba(59,143,212,0.12);
+    }
+    .fp-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+    .fp-label { font-size: 0.72rem; color: rgba(26,43,60,0.5); }
+    .fp-val { font-size: 0.72rem; font-weight: 700; color: var(--ink); }
+    .fp-bar { height: 4px; border-radius: 2px; background: rgba(59,143,212,0.12); margin-bottom: 0.75rem; overflow: hidden; }
+    .fp-bar-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--blue), var(--cyan)); }
+    .fp-bar:last-child { margin-bottom: 0; }
+
+    /* Floating badge */
+    .hero-badge-float {
+      position: absolute; bottom: 2rem; right: 2rem;
+      background: linear-gradient(135deg, var(--blue), #004f8a);
+      width: 96px; height: 96px; border-radius: 50%;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; font-family: var(--font-display);
+      font-size: 0.58rem; font-weight: 800; letter-spacing: 0.06em;
+      text-transform: uppercase; color: #fff; line-height: 1.5; padding: 1rem;
+      box-shadow: 0 1px 0 rgba(255,255,255,.35) inset, 0 10px 32px rgba(59,126,248,.55);
+    }
+
+    /* ── TICKER ──────────────────────────────── */
+    .ticker {
+      position: relative; z-index: 1;
+      background: rgba(59,143,212,0.05);
+      border-top: 1px solid rgba(59,143,212,0.1);
+      border-bottom: 1px solid rgba(59,143,212,0.1);
+      padding: 0.7rem 0; overflow: hidden;
+      -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
+      mask-image: linear-gradient(90deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
+    }
+    .ticker-item {
+      font-size: 0.72rem; font-weight: 600;
+      color: rgba(26,43,60,0.4);
+      letter-spacing: 0.1em; text-transform: uppercase;
+      flex-shrink: 0; display: flex; align-items: center;
+      padding: 0 2rem;
+    }
+    .ticker-item::after { content: '◆'; opacity: .3; font-size: 0.45rem; margin-left: 2rem; }
+    @keyframes tickerSeamless {
+      0%   { transform: translate3d(0,0,0); }
+      100% { transform: translate3d(-50%,0,0); }
+    }
+	@keyframes scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.ticker-track {
+  display: flex;
+  width: max-content; /* Importante para que no se corte */
+  animation: scroll 40s linear infinite; /* 40s es la velocidad, cámbialo si quieres más rápido */
+}
+
+/* Pausa al pasar el mouse para que el usuario pueda leer */
+.ticker-track:hover {
+  animation-play-state: paused;
+}
+
+    /* ── SECTION BASE ────────────────────────── */
+    section { padding: 7rem 5vw; position: relative; z-index: 1; }
+    #servicios, #nosotros, #valores, #blog, #contacto {
+      content-visibility: auto;
+      contain-intrinsic-size: 0 600px;
+    }
+
+    .section-eyebrow {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: rgba(59,143,212,0.08);
+      border: 1px solid rgba(59,143,212,0.18);
+      padding: 0.3rem 0.8rem; border-radius: var(--radius-pill);
+      font-size: 0.68rem; font-weight: 700;
+      color: rgba(26,43,60,0.55);
+      letter-spacing: 0.12em; text-transform: uppercase;
+      margin-bottom: 1.25rem;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset;
+    }
+    .eyebrow-accent { color: var(--cyan); }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.9rem, 3.5vw, 3.2rem);
+      font-weight: 900; line-height: 1.04;
+      letter-spacing: -0.04em; color: var(--ink);
+    }
+    .section-title em {
+      font-style: normal; font-family: var(--font-serif); font-weight: 400;
+      color: rgba(26,43,60,0.4);
+    }
+
+    /* ── SERVICIOS ───────────────────────────── */
+    #servicios { background: transparent; }
+
+    .servicios-header {
+      display: flex; justify-content: space-between; align-items: flex-end;
+      margin-bottom: 3rem; gap: 2rem; flex-wrap: wrap;
+    }
+    .servicios-header p {
+      max-width: 340px; color: var(--ink-mid);
+      font-size: 0.9375rem; line-height: 1.8;
+    }
+
+    /* Glass bento grid */
+    .servicios-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 1.5px;
+      background: rgba(59,143,212,0.1);
+      border-radius: var(--radius); overflow: hidden;
+      border: 1px solid rgba(59,143,212,0.15);
+      box-shadow: 0 2px 0 rgba(255,255,255,0.9) inset, 0 8px 32px rgba(59,100,180,0.08);
+      isolation: isolate;
+    }
+
+    .servicio-card {
+      background: rgba(255,255,255,0.75);
+      padding: 2.25rem;
+      display: flex; flex-direction: column;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      position: relative; overflow: hidden;
+      transition: background .25s;
+      cursor: pointer;
+      will-change: background;
+    }
+    .servicio-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.95), transparent);
+    }
+    .servicio-card::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(59,143,212,0.06), transparent 60%);
+      opacity: 0; transition: opacity .3s;
+    }
+    .servicio-card:hover { background: rgba(255,255,255,0.92); }
+    .servicio-card:hover::after { opacity: 1; }
+    .servicio-card.active {
+      background: rgba(220,237,252,0.9);
+      border-left: 2px solid var(--cyan);
+    }
+    .servicio-card.active::after { opacity: 1; }
+
+    .servicio-num {
+      font-family: var(--font-display); font-size: 0.62rem;
+      font-weight: 700; color: rgba(26,43,60,0.25);
+      letter-spacing: 0.14em; margin-bottom: 1.5rem;
+      position: relative; z-index: 1;
+    }
+    .servicio-icon-wrap {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: rgba(59,143,212,0.08);
+      border: 1px solid rgba(59,143,212,0.15);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem; margin-bottom: 1.25rem;
+      position: relative; z-index: 1;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.9) inset;
+      transition: background .25s, border-color .25s;
+    }
+    .servicio-card:hover .servicio-icon-wrap,
+    .servicio-card.active .servicio-icon-wrap {
+      background: rgba(59,143,212,0.15);
+      border-color: rgba(0,144,187,0.35);
+    }
+    .servicio-name {
+      font-family: var(--font-display); font-size: 1.05rem;
+      font-weight: 800; color: var(--ink);
+      margin-bottom: 0.6rem;
+      position: relative; z-index: 1;
+    }
+    .servicio-arrow {
+      margin-top: 1.5rem; color: rgba(26,43,60,0.2);
+      font-size: 1.1rem;
+      display: inline-block; position: relative; z-index: 1;
+      transition: transform .22s ease, color .22s ease;
+      will-change: transform;
+    }
+    .servicio-card:hover .servicio-arrow { transform: translate3d(6px,0,0); color: var(--cyan); }
+    .servicio-card.active .servicio-arrow { transform: rotate(90deg); color: var(--cyan); }
+
+    /* ── SERVICIO PANEL (drawer) ─────────────── */
+    .servicio-panel {
+      grid-column: 1 / -1;
+      background: rgba(220,237,252,0.7);
+      backdrop-filter: blur(20px) saturate(160%);
+      -webkit-backdrop-filter: blur(20px) saturate(160%);
+      border-top: 1px solid rgba(59,143,212,0.18);
+      border-bottom: 1px solid rgba(59,143,212,0.1);
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows .4s cubic-bezier(.4,0,.2,1), opacity .3s ease;
+      opacity: 0;
+    }
+    .servicio-panel.open {
+      grid-template-rows: 1fr;
+      opacity: 1;
+    }
+    .servicio-panel-inner {
+      overflow: hidden;
+      display: grid; grid-template-columns: 1fr 1.4fr;
+      gap: 3rem; padding: 2.5rem 2.25rem; align-items: start;
+    }
+    .panel-tag {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--cyan);
+      background: rgba(59,143,212,0.1);
+      border: 1px solid rgba(59,143,212,0.2);
+      padding: 0.25rem 0.75rem; border-radius: var(--radius-pill);
+      margin-bottom: 1rem;
+    }
+    .panel-title {
+      font-family: var(--font-display); font-size: clamp(1.4rem,2.5vw,2rem);
+      font-weight: 900; color: var(--ink); letter-spacing: -0.03em;
+      line-height: 1.1; margin-bottom: 1rem;
+    }
+    .panel-feature {
+      background: rgba(255,255,255,0.65);
+      border: 1px solid rgba(59,143,212,0.12);
+      border-radius: 14px; padding: 1.1rem 1.25rem;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.9) inset;
+      transition: background .2s, border-color .2s;
+    }
+    .panel-feature:hover {
+      background: rgba(255,255,255,0.9);
+      border-color: rgba(59,143,212,0.25);
+    }
+    .panel-feature-name {
+      font-family: var(--font-display); font-size: 0.85rem;
+      font-weight: 700; color: var(--ink); margin-bottom: 0.3rem;
+    }
+
+    /* ── NOSOTROS ────────────────────────────── */
+    #nosotros { background: transparent; }
+    .nosotros-inner {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 5rem; align-items: center;
+    }
+
+    .nosotros-visual { position: relative; }
+    .nosotros-glass-card {
+      aspect-ratio: 4/5;
+      background: rgba(255,255,255,0.6);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.9);
+      border-radius: 26px; overflow: hidden; position: relative;
+      box-shadow:
+        0 2px 0 rgba(255,255,255,0.95) inset,
+        0 -1px 0 rgba(59,143,212,0.08) inset,
+        0 40px 100px rgba(59,100,180,0.15);
+    }
+    .nosotros-grid-pattern {
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(45deg, transparent, transparent 24px, rgba(59,143,212,0.04) 24px, rgba(59,143,212,0.04) 25px);
+    }
+    .nosotros-glow {
+      position: absolute; bottom: 0; left: 0; right: 0; height: 70%;
+      background: linear-gradient(to top, rgba(59,143,212,.2), rgba(150,198,232,0.1), transparent);
+    }
+    .nosotros-text-overlay {
+      position: absolute; bottom: 2.5rem; left: 2.5rem; right: 2.5rem;
+      color: var(--ink);
+    }
+    .nosotros-text-overlay strong {
+      font-family: var(--font-display); font-size: clamp(3rem,5vw,4.5rem);
+      font-weight: 900; line-height: 1; letter-spacing: -0.05em; display: block;
+      background: linear-gradient(90deg, var(--blue-2), var(--cyan));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .nosotros-text-overlay span {
+      font-size: 0.85rem; color: rgba(26,43,60,0.5); line-height: 1.5;
+      display: block; margin-top: 0.5rem;
+    }
+    .nosotros-list li::before {
+      content: '✓'; font-weight: 900; flex-shrink: 0; margin-top: 0.15rem;
+      background: linear-gradient(90deg, var(--blue-2), var(--cyan));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    }
+    .nosotros-grid-pattern {
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(45deg, transparent, transparent 24px, rgba(255,255,255,0.015) 24px, rgba(255,255,255,0.015) 25px);
+    }
+    .nosotros-glow {
+      position: absolute; bottom: 0; left: 0; right: 0; height: 70%;
+      background: linear-gradient(to top, rgba(59,126,248,.35), rgba(0,56,101,0.25), transparent);
+    }
+    .nosotros-text-overlay {
+      position: absolute; bottom: 2.5rem; left: 2.5rem; right: 2.5rem;
+      color: var(--white);
+    }
+    .nosotros-text-overlay strong {
+      font-family: var(--font-display); font-size: clamp(3rem,5vw,4.5rem);
+      font-weight: 900; line-height: 1; letter-spacing: -0.05em; display: block;
+      background: linear-gradient(90deg, #8fd0f5, var(--cyan));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .nosotros-text-overlay span {
+      font-size: 0.85rem; color: rgba(255,255,255,0.4); line-height: 1.5;
+      display: block; margin-top: 0.5rem;
+    }
+    .nosotros-badge {
+      position: absolute; top: -1.5rem; right: -1.5rem;
+      background: linear-gradient(135deg, var(--blue), #004f8a);
+      width: 108px; height: 108px; border-radius: 50%;
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; text-align: center;
+      font-family: var(--font-display);
+      font-size: 0.58rem; font-weight: 800;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      color: #fff; line-height: 1.5; padding: 1rem;
+      box-shadow: 0 1px 0 rgba(255,255,255,.3) inset, 0 12px 36px rgba(59,143,212,.4);
+    }
+
+    .nosotros-content { }
+    .nosotros-content .section-title { margin-bottom: 1.25rem; }
+    .nosotros-content p {
+      color: var(--ink-mid); font-size: 0.9375rem;
+      margin-bottom: 1rem; line-height: 1.85;
+    }
+    .nosotros-list {
+      list-style: none; margin: 1.5rem 0;
+      display: flex; flex-direction: column; gap: 0.65rem;
+    }
+    .nosotros-list li {
+      display: flex; align-items: flex-start; gap: 0.75rem;
+      font-size: 0.9375rem; color: var(--ink-mid);
+    }
+    .nosotros-list li::before {
+      content: '✓'; font-weight: 900; flex-shrink: 0; margin-top: 0.15rem;
+      background: linear-gradient(90deg, var(--blue-2), var(--cyan));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+
+    /* ── VALORES ─────────────────────────────── */
+    #valores { background: transparent; }
+    .valores-grid {
+      display: grid; grid-template-columns: repeat(4,1fr);
+      gap: 1rem; margin-top: 3rem;
+    }
+    .valor-card {
+      background: rgba(255,255,255,0.65);
+      border: 1px solid rgba(255,255,255,0.9);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: var(--radius);
+      padding: 2rem;
+      position: relative; overflow: hidden;
+      transition: background .25s, border-color .25s, transform .25s;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.95) inset, 0 8px 32px rgba(59,100,180,0.08);
+      contain: layout style;
+    }
+    .valor-card::before {
+      content: ''; position: absolute;
+      top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.95), transparent);
+    }
+    .valor-card:hover {
+      background: rgba(255,255,255,0.85);
+      border-color: rgba(59,143,212,0.2);
+      transform: translate3d(0,-4px,0);
+    }
+    .valor-icon {
+      font-size: 2rem; margin-bottom: 1.25rem; display: block;
+    }
+    .valor-name {
+      font-family: var(--font-display); font-size: 1.1rem;
+      font-weight: 800; color: var(--ink); margin-bottom: 0.6rem;
+    }
+    .valor-desc {
+      font-size: 0.875rem; color: var(--ink-mid); line-height: 1.72;
+    }
+
+    /* ── BLOG ────────────────────────────────── */
+    #blog { background: transparent; }
+    .blog-header {
+      display: flex; justify-content: space-between;
+      align-items: flex-end; margin-bottom: 3rem; flex-wrap: wrap; gap: 1rem;
+    }
+    .blog-header > a {
+      font-size: 0.875rem; font-weight: 600; color: rgba(26,43,60,0.45);
+      text-decoration: none; transition: color .2s;
+    }
+    .blog-header > a:hover { color: var(--ink); }
+    .blog-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.25rem; }
+    .blog-card {
+      background: rgba(255,255,255,0.65);
+      border: 1px solid rgba(255,255,255,0.9);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: border-color .25s, transform .25s;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.95) inset, 0 8px 32px rgba(59,100,180,0.08);
+      contain: layout style;
+    }
+    .blog-card:hover {
+      border-color: rgba(59,143,212,0.2);
+      transform: translate3d(0,-4px,0);
+    }
+    .blog-thumb {
+      aspect-ratio: 16/9; position: relative; overflow: hidden;
+      background: linear-gradient(135deg, #c8dff2, #daeaf7);
+    }
+    .blog-thumb-grid {
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(45deg, transparent, transparent 12px, rgba(59,143,212,0.04) 12px, rgba(59,143,212,0.04) 13px);
+    }
+    .blog-thumb-glow {
+      position: absolute; inset: 0;
+      background: radial-gradient(circle at 50% 60%, rgba(59,143,212,0.25), transparent 70%);
+    }
+    .blog-thumb-tag {
+      position: absolute; top: 1rem; left: 1rem;
+      background: rgba(255,255,255,0.75);
+      border: 1px solid rgba(255,255,255,0.9);
+      backdrop-filter: blur(8px);
+      padding: 0.25rem 0.7rem; border-radius: var(--radius-pill);
+      font-size: 0.62rem; font-weight: 700;
+      color: rgba(26,43,60,0.65);
+      letter-spacing: 0.1em; text-transform: uppercase;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.9) inset;
+    }
+    .blog-body { padding: 1.5rem; }
+    .blog-date { font-size: 0.7rem; color: var(--ink-soft); margin-bottom: 0.6rem; }
+    .blog-title {
+      font-family: var(--font-display); font-size: 1rem;
+      font-weight: 700; color: var(--ink); margin-bottom: 0.6rem;
+      line-height: 1.3;
+    }
+    .blog-excerpt { font-size: 0.84rem; color: var(--ink-mid); line-height: 1.7; }
+
+    /* ── CONTACTO ────────────────────────────── */
+    #contacto { background: transparent; }
+    .contacto-inner {
+      display: grid; grid-template-columns: 1fr 1.15fr;
+      gap: 5rem; align-items: start;
+    }
+    .contacto-left .section-title { margin-bottom: 1.25rem; }
+    .contacto-left > p {
+      color: var(--ink-mid); font-size: 0.9375rem;
+      margin-bottom: 2rem; line-height: 1.85;
+    }
+    .contacto-info { display: flex; flex-direction: column; gap: 1rem; }
+    .contacto-item {
+      display: flex; align-items: flex-start; gap: 1rem;
+    }
+    .contacto-icon {
+      width: 38px; height: 38px; border-radius: 10px;
+      background: rgba(255,255,255,0.7);
+      border: 1px solid rgba(59,143,212,0.15);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; flex-shrink: 0;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.9) inset;
+    }
+    .contacto-item-text strong {
+      display: block; font-size: 0.78rem; font-weight: 700;
+      color: var(--ink); margin-bottom: 0.15rem;
+    }
+    .contacto-item-text span, .contacto-item-text a {
+      font-size: 0.85rem; color: var(--ink-mid);
+      text-decoration: none; transition: color .2s;
+    }
+    .contacto-item-text a:hover { color: var(--ink); }
+
+    /* Form glass card */
+    .contacto-form {
+      background: rgba(255,255,255,0.65);
+      border: 1px solid rgba(255,255,255,0.9);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 26px; padding: 2.25rem;
+      box-shadow:
+        0 2px 0 rgba(255,255,255,0.95) inset,
+        0 -1px 0 rgba(59,143,212,0.06) inset,
+        0 30px 80px rgba(59,100,180,0.12);
+    }
+    .form-title {
+      font-family: var(--font-display); font-size: 1.2rem;
+      font-weight: 800; color: var(--ink);
+      margin-bottom: 1.75rem; letter-spacing: -0.02em;
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-group { margin-bottom: 1.1rem; }
+    .form-label {
+      display: block; font-size: 0.75rem; font-weight: 600;
+      color: rgba(26,43,60,0.45); margin-bottom: 0.45rem;
+      letter-spacing: 0.04em; text-transform: uppercase;
+    }
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      background: rgba(255,255,255,0.7);
+      border: 1px solid rgba(59,143,212,0.18);
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      font-family: var(--font-body); font-size: 0.875rem;
+      color: var(--ink); outline: none;
+      transition: border-color .2s, background .2s, box-shadow .2s;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.9) inset;
+    }
+    .form-input::placeholder, .form-textarea::placeholder { color: rgba(26,43,60,0.3); }
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color: rgba(59,143,212,0.45);
+      background: rgba(255,255,255,0.9);
+      box-shadow: 0 0 0 3px rgba(59,143,212,0.1), 0 1px 0 rgba(255,255,255,0.9) inset;
+    }
+    .form-select option { background: #ffffff; color: var(--ink); }
+    .form-textarea { resize: vertical; min-height: 120px; }
+    .btn-submit {
+      width: 100%; padding: 0.9rem;
+      background: linear-gradient(135deg, var(--blue), #004f8a);
+      border: none; border-radius: 10px;
+      font-family: var(--font-body); font-size: 0.9rem;
+      font-weight: 700; color: #fff; cursor: pointer;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.25) inset, 0 6px 24px rgba(59,143,212,.3);
+      transition: transform .2s, box-shadow .2s, opacity .2s;
+    }
+    .btn-submit:hover { transform: translate3d(0,-2px,0); box-shadow: 0 1px 0 rgba(255,255,255,0.25) inset, 0 12px 36px rgba(59,143,212,.45); }
+    .btn-submit:active { transform: translate3d(0,0,0); opacity: .9; }
+
+    /* ── FOOTER ──────────────────────────────── */
+    footer {
+      position: relative; z-index: 1;
+      border-top: 1px solid rgba(59,143,212,0.1);
+      background: rgba(255,255,255,0.5);
+      backdrop-filter: blur(12px);
+      padding: 4rem 5vw 2rem;
+    }
+    .footer-top {
+      display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr;
+      gap: 3rem; margin-bottom: 3rem;
+    }
+    .footer-brand p {
+      font-size: 0.875rem; color: var(--ink-soft);
+      margin-top: 1rem; line-height: 1.75; max-width: 260px;
+    }
+    .footer-col h4 {
+      font-size: 0.72rem; font-weight: 700; color: rgba(26,43,60,0.4);
+      letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 1rem;
+    }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; }
+    .footer-col a {
+      font-size: 0.875rem; color: var(--ink-soft);
+      text-decoration: none; transition: color .2s;
+    }
+    .footer-col a:hover { color: var(--ink); }
+    .footer-bottom {
+      border-top: 1px solid rgba(59,143,212,0.08);
+      padding-top: 1.5rem;
+      display: flex; justify-content: space-between;
+      align-items: center; flex-wrap: wrap; gap: 1rem;
+      font-size: 0.8rem; color: var(--ink-soft);
+    }
+    .footer-socials { display: flex; gap: 1.5rem; }
+    .footer-socials a {
+      font-size: 0.8rem; color: var(--ink-soft);
+      text-decoration: none; transition: color .2s;
+    }
+    .footer-socials a:hover { color: var(--ink); }
+
+    /* ── REDUCED MOTION ──────────────────────── */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      .ambient-orb { animation: none; }
+      .ticker-inner { animation: none; }
+      .reveal { opacity: 1; transform: none; }
+    }
+    @keyframes fadeUp { from { opacity:0; transform:translate3d(0,28px,0); } to { opacity:1; transform:translate3d(0,0,0); } }
+    @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+    @keyframes ticker { 0%{transform:translate3d(0,0,0)} 100%{transform:translate3d(-50%,0,0)} }
+    @keyframes spin { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
+
+    /* ── RESPONSIVE ──────────────────────────── */
+    @media (max-width: 1024px) {
+      .valores-grid { grid-template-columns: repeat(2,1fr); }
+      .footer-top { grid-template-columns: 1fr 1fr; }
+
+      /* En tablet: 2 columnas → paneles ocupan ambas columnas */
+      .servicios-grid { grid-template-columns: repeat(2, 1fr); }
+      /* Fila 1: cards 1-2 en columnas, card 3 sola → panel siempre tras la fila */
+      .servicio-panel { grid-column: 1 / -1; }
+      .servicio-panel-inner { grid-template-columns: 1fr 1fr; gap: 2rem; padding: 2rem 1.75rem; }
+      .panel-features { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      #hero { grid-template-columns: 1fr; }
+      .hero-visual { display: none; }
+      .hero-text { padding: calc(64px + 3rem) 5vw 4rem; }
+
+      .nosotros-inner { grid-template-columns: 1fr; gap: 2.5rem; }
+      .nosotros-visual { display: none; }
+
+      .contacto-inner { grid-template-columns: 1fr; gap: 3rem; }
+      .form-row { grid-template-columns: 1fr; }
+
+      .blog-grid { grid-template-columns: 1fr; }
+      .valores-grid { grid-template-columns: 1fr 1fr; }
+      .footer-top { grid-template-columns: 1fr; gap: 2rem; }
+      .footer-bottom { flex-direction: column; text-align: center; }
+
+      .nav-center, .nav-actions { display: none; }
+      .hamburger { display: flex; }
+
+      /* Servicios móvil: 1 columna, panel ocupa todo el ancho */
+      .servicios-grid { grid-template-columns: 1fr; }
+      .servicio-panel { grid-column: 1 / -1; max-height: none; }
+      .servicio-panel.open { max-height: none; }
+      .servicio-panel-inner {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        padding: 1.75rem 1.25rem;
+      }
+      .panel-features { grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+      .panel-title { font-size: clamp(1.2rem, 5vw, 1.6rem); }
+      .panel-desc { font-size: 0.85rem; }
+    }
+
+    @media (max-width: 480px) {
+      .valores-grid { grid-template-columns: 1fr; }
+      /* En pantallas muy pequeñas los features van en 1 columna */
+      .panel-features { grid-template-columns: 1fr; }
+      .panel-feature { display: flex; align-items: flex-start; gap: 0.75rem; }
+      .panel-feature-icon { font-size: 1.1rem; margin-bottom: 0; flex-shrink: 0; margin-top: 0.1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- AMBIENT -->
+  <div class="ambient">
+    <div class="ambient-orb orb-1"></div>
+    <div class="ambient-orb orb-2"></div>
+    <div class="ambient-orb orb-3"></div>
+  </div>
+
+  <!-- NAV -->
+  <nav id="navbar">
+    <a href="#" class="nav-logo" aria-label="Gestoría AAA, S.C.">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 963.2 130.4" style="height:32px;width:auto;display:block;" aria-hidden="true">
+        <g>
+          <path fill="rgba(26,43,60,0.9)" d="M12.86,9.71s-2.68-1.59-2.97.99v54.12l9.51-4.96.5-11.3,20.42-11.79,10.01,5.65,9.02-4.96L12.86,9.71ZM16.83,38.95l-.1-13.68c.2-5.05,4.36-2.18,4.36-2.18l11.1,6.84-15.36,9.02Z"/>
+          <path fill="rgba(26,43,60,0.9)" d="M9.18,118.88s-.03,3.11,2.35,2.08l46.82-27.13-9.06-5.75-10.02,5.24-20.44-11.75-.13-11.49-8.81-5.32-.71,54.13ZM32.49,100.79l-11.78,6.94c-4.47,2.36-4.07-2.68-4.07-2.68l.35-13.03,15.51,8.77Z"/>
+          <path fill="rgba(26,43,60,0.9)" d="M105.52,67.55s2.71-1.52.63-3.07l-46.87-27.05-.46,10.72,9.54,6.08v23.58s-9.89,5.85-9.89,5.85l-.23,10.23,47.28-26.33ZM78.22,56.37l11.9,6.75c4.28,2.7-.29,4.87-.29,4.87l-11.47,6.2-.13-17.81Z"/>
+        </g>
+        <text fill="rgba(26,43,60,0.92)" font-family="'Cabinet Grotesk', 'DM Sans', sans-serif" font-size="79" font-weight="700" transform="translate(123.01 94.87)">GESTORÍA  AAA, S.C.</text>
+      </svg>
+    </a>
+
+    <ul class="nav-center">
+      <li><a href="#servicios">Servicios</a></li>
+      <li><a href="#nosotros">Nosotros</a></li>
+      <li><a href="#valores">Valores</a></li>
+      <li><a href="#blog">Blog</a></li>
+      <li><a href="#contacto">Contacto</a></li>
+    </ul>
+
+    <button class="hamburger" id="hamburger" aria-label="Menú" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- MOBILE MENU -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#servicios" class="mobile-link">Servicios</a>
+    <a href="#nosotros" class="mobile-link">Nosotros</a>
+    <a href="#valores" class="mobile-link">Valores</a>
+    <a href="#blog" class="mobile-link">Blog</a>
+    <a href="#contacto" class="mobile-link">Contacto</a>
+    <div class="mobile-cta-wrap">
+      <a href="#contacto" class="mobile-link">Consulta gratis →</a>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-text">
+      <div class="hero-badge-pill">
+        <div class="badge-dot">✦</div>
+        <span class="badge-text">Gestoría Aduanal Certificada</span>
+      </div>
+      <h1 class="hero-title">
+        Operaciones<br/>
+        <em>sin fronteras,</em><br/>
+        con certeza.
+      </h1>
+      <p class="hero-desc">
+        Somos tu aliado estratégico en comercio exterior. Importaciones, exportaciones y cumplimiento aduanal con más de 15 años de experiencia.
+      </p>
+      <div class="hero-actions">
+        <a href="#contacto" class="btn-primary">Consulta gratuita →</a>
+        <a href="#servicios" class="btn-glass">Ver servicios</a>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="hero-visual-grid"></div>
+      <div class="hero-glow-main"></div>
+      <div class="hero-glow-accent"></div>
+      <div class="hero-glow-teal"></div>
+      <div class="hero-watermark">AAA</div>
+
+      <div class="hero-float-card">
+        <div class="float-card-label">Resumen operativo 2024</div>
+        <div class="float-card-stats">
+          <div class="float-stat">
+            <div class="float-stat-num">15+</div>
+            <div class="float-stat-label">Años exp.</div>
+          </div>
+          <div class="float-stat">
+            <div class="float-stat-num">98%</div>
+            <div class="float-stat-label">Éxito</div>
+          </div>
+          <div class="float-stat">
+            <div class="float-stat-num">500+</div>
+            <div class="float-stat-label">Clientes</div>
+          </div>
+          <div class="float-stat">
+            <div class="float-stat-num">24/7</div>
+            <div class="float-stat-label">Soporte</div>
+          </div>
+        </div>
+        <div class="float-progress">
+          <div class="fp-row">
+            <span class="fp-label">Importaciones</span>
+            <span class="fp-val">94%</span>
+          </div>
+          <div class="fp-bar"><div class="fp-bar-fill" style="width:94%"></div></div>
+          <div class="fp-row">
+            <span class="fp-label">Exportaciones</span>
+            <span class="fp-val">88%</span>
+          </div>
+          <div class="fp-bar"><div class="fp-bar-fill" style="width:88%; background: linear-gradient(90deg, #004f8a, var(--cyan))"></div></div>
+          <div class="fp-row">
+            <span class="fp-label">IMMEX</span>
+            <span class="fp-val">76%</span>
+          </div>
+          <div class="fp-bar" style="margin-bottom:0"><div class="fp-bar-fill" style="width:76%; background: linear-gradient(90deg, #0090bb, #8fd0f5)"></div></div>
+        </div>
+      </div>
+
+      <div class="hero-badge-float">Empresa<br/>100%<br/>Mexicana</div>
+    </div>
+  </section>
+
+  <!-- TICKER -->
+  <div class="ticker-track">
+    <div class="ticker-item"><span>Importación</span></div>
+    <div class="ticker-item"><span>Exportación</span></div>
+    <div class="ticker-item"><span>Clasificación Arancelaria</span></div>
+    <div class="ticker-item"><span>IMMEX</span></div>
+    <div class="ticker-item"><span>Asesoría Regulatoria</span></div>
+    <div class="ticker-item"><span>Auditoría Aduanal</span></div>
+    <div class="ticker-item"><span>Cumplimiento SAT</span></div>
+    <div class="ticker-item"><span>Padrón de Importadores</span></div>
+    <div class="ticker-item"><span>Comercio Exterior</span></div>
+    <div class="ticker-item"><span>Despacho Aduanal</span></div>
+    
+    <div class="ticker-item"><span>Importación</span></div>
+    <div class="ticker-item"><span>Exportación</span></div>
+    <div class="ticker-item"><span>Clasificación Arancelaria</span></div>
+    <div class="ticker-item"><span>IMMEX</span></div>
+    <div class="ticker-item"><span>Asesoría Regulatoria</span></div>
+    <div class="ticker-item"><span>Auditoría Aduanal</span></div>
+    <div class="ticker-item"><span>Cumplimiento SAT</span></div>
+    <div class="ticker-item"><span>Padrón de Importadores</span></div>
+    <div class="ticker-item"><span>Comercio Exterior</span></div>
+    <div class="ticker-item"><span>Despacho Aduanal</span></div>
+  </div>
+
+  <!-- SERVICIOS -->
+  <section id="servicios">
+    <div class="servicios-header">
+      <div>
+        <div class="section-eyebrow reveal"><span class="eyebrow-accent">✦</span> Nuestros servicios</div>
+        <h2 class="section-title reveal">Todo lo que<br/><em>necesitas</em></h2>
+      </div>
+      <p class="reveal">Soluciones aduanales integrales para empresas mexicanas que operan en los mercados globales.</p>
+    </div>
+
+    <div class="servicios-grid">
+
+      <!-- CARD 01 -->
+      <div class="servicio-card reveal" data-servicio="importacion">
+        <div class="servicio-num">01</div>
+        <div class="servicio-icon-wrap">🚢</div>
+        <div class="servicio-name">Importación</div>
+        <p class="servicio-desc">Gestión completa del despacho de mercancías del extranjero con tramitación ágil ante la aduana.</p>
+        <span class="servicio-arrow">→</span>
+        <div class="servicio-line"></div>
+      </div>
+
+      <!-- CARD 02 -->
+      <div class="servicio-card reveal" data-servicio="exportacion">
+        <div class="servicio-num">02</div>
+        <div class="servicio-icon-wrap">✈️</div>
+        <div class="servicio-name">Exportación</div>
+        <p class="servicio-desc">Cumplimiento normativo y documentación para llevar tus productos a cualquier destino del mundo.</p>
+        <span class="servicio-arrow">→</span>
+        <div class="servicio-line"></div>
+      </div>
+
+      <!-- CARD 03 -->
+      <div class="servicio-card reveal" data-servicio="clasificacion">
+        <div class="servicio-num">03</div>
+        <div class="servicio-icon-wrap">📋</div>
+        <div class="servicio-name">Clasificación Arancelaria</div>
+        <p class="servicio-desc">Determinación precisa de la fracción correcta para optimizar impuestos y evitar observaciones del SAT.</p>
+        <span class="servicio-arrow">→</span>
+        <div class="servicio-line"></div>
+      </div>
+
+      <!-- PANEL FILA 1 -->
+      <div class="servicio-panel" id="panel-row-1">
+        <div class="servicio-panel-inner">
+          <div class="panel-left">
+            <div class="panel-tag">✦ <span class="panel-tag-label">Servicio</span></div>
+            <div class="panel-title" id="panel-row-1-title"></div>
+            <p class="panel-desc" id="panel-row-1-desc"></p>
+            <a href="#contacto" class="panel-cta">Solicitar asesoría →</a>
+          </div>
+          <div class="panel-right">
+            <div class="panel-features" id="panel-row-1-features"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD 04 -->
+      <div class="servicio-card reveal" data-servicio="immex">
+        <div class="servicio-num">04</div>
+        <div class="servicio-icon-wrap">🏭</div>
+        <div class="servicio-name">Operaciones IMMEX</div>
+        <p class="servicio-desc">Administración del programa Maquila-IMMEX: inscripción, ampliaciones y cumplimiento de obligaciones.</p>
+        <span class="servicio-arrow">→</span>
+        <div class="servicio-line"></div>
+      </div>
+
+      <!-- CARD 05 -->
+      <div class="servicio-card reveal" data-servicio="asesoria">
+        <div class="servicio-num">05</div>
+        <div class="servicio-icon-wrap">⚖️</div>
+        <div class="servicio-name">Asesoría Regulatoria</div>
+        <p class="servicio-desc">Consultoría en normativa de comercio exterior: NOM, NESS, regulaciones no arancelarias y tratados internacionales.</p>
+        <span class="servicio-arrow">→</span>
+        <div class="servicio-line"></div>
+      </div>
+
+      <!-- CARD 06 -->
+      <div class="servicio-card reveal" data-servicio="auditoria">
+        <div class="servicio-num">06</div>
+        <div class="servicio-icon-wrap">🔍</div>
+        <div class="servicio-name">Auditoría Aduanal</div>
+        <p class="servicio-desc">Revisión integral de operaciones previas para identificar riesgos y oportunidades de mejora en tu historial.</p>
+        <span class="servicio-arrow">→</span>
+        <div class="servicio-line"></div>
+      </div>
+
+      <!-- PANEL FILA 2 -->
+      <div class="servicio-panel" id="panel-row-2">
+        <div class="servicio-panel-inner">
+          <div class="panel-left">
+            <div class="panel-tag">✦ <span class="panel-tag-label">Servicio</span></div>
+            <div class="panel-title" id="panel-row-2-title"></div>
+            <p class="panel-desc" id="panel-row-2-desc"></p>
+            <a href="#contacto" class="panel-cta">Solicitar asesoría →</a>
+          </div>
+          <div class="panel-right">
+            <div class="panel-features" id="panel-row-2-features"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- NOSOTROS -->
+  <section id="nosotros">
+    <div class="nosotros-inner">
+      <div class="nosotros-visual reveal">
+        <div class="nosotros-glass-card">
+          <div class="nosotros-grid-pattern"></div>
+          <div class="nosotros-glow"></div>
+          <div class="nosotros-text-overlay">
+            <strong>15+</strong>
+            <span>Años siendo el puente entre tu empresa y el mundo</span>
+          </div>
+        </div>
+        <div class="nosotros-badge">Empresa<br/>100%<br/>Mexicana</div>
+      </div>
+      <div class="nosotros-content">
+        <div class="section-eyebrow reveal"><span class="eyebrow-accent">✦</span> Quiénes somos</div>
+        <h2 class="section-title reveal">Tu aliado en<br/><em>comercio exterior</em></h2>
+        <p class="reveal">Somos una firma de gestoría aduanal con más de 15 años de experiencia facilitando las operaciones de importación y exportación de empresas mexicanas de todos los tamaños.</p>
+        <p class="reveal">Contamos con un equipo de agentes aduanales certificados, abogados en comercio exterior y especialistas en logística que trabajan coordinadamente para garantizar resultados en tiempo y forma.</p>
+        <ul class="nosotros-list">
+          <li class="reveal">Agentes aduanales certificados ante el SAT</li>
+          <li class="reveal">Presencia en las principales aduanas de México</li>
+          <li class="reveal">Sistema de rastreo en tiempo real de tus operaciones</li>
+          <li class="reveal">Atención personalizada 24/7 para situaciones urgentes</li>
+        </ul>
+        <a href="#contacto" class="btn-primary reveal" style="display:inline-flex;margin-top:0.5rem;">Hablar con un asesor →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- VALORES -->
+  <section id="valores">
+    <div class="section-eyebrow reveal"><span class="eyebrow-accent">✦</span> Nuestros valores</div>
+    <h2 class="section-title reveal">Lo que<br/><em>nos define</em></h2>
+    <div class="valores-grid">
+      <div class="valor-card reveal">
+        <span class="valor-icon">⚖️</span>
+        <div class="valor-name">Legalidad</div>
+        <p class="valor-desc">Operamos con total apego a la legislación aduanal mexicana. La transparencia y el cumplimiento normativo son innegociables.</p>
+      </div>
+      <div class="valor-card reveal">
+        <span class="valor-icon">⚡</span>
+        <div class="valor-name">Eficiencia</div>
+        <p class="valor-desc">Minimizamos los tiempos de despacho sin sacrificar precisión. Sabemos que cada hora cuenta para tu cadena de suministro.</p>
+      </div>
+      <div class="valor-card reveal">
+        <span class="valor-icon">🤝</span>
+        <div class="valor-name">Confianza</div>
+        <p class="valor-desc">Construimos relaciones de largo plazo basadas en honestidad, comunicación abierta y resultados consistentes.</p>
+      </div>
+      <div class="valor-card reveal">
+        <span class="valor-icon">🎯</span>
+        <div class="valor-name">Precisión</div>
+        <p class="valor-desc">Cada detalle importa en aduanas. Nuestros procesos están diseñados para eliminar errores antes de que ocurran.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOG -->
+  <section id="blog">
+    <div class="blog-header">
+      <div>
+        <div class="section-eyebrow reveal"><span class="eyebrow-accent">✦</span> Recursos</div>
+        <h2 class="section-title reveal">Noticias y guías<br/><em>aduanales</em></h2>
+      </div>
+      <a href="#blog" class="reveal">Ver todos los artículos →</a>
+    </div>
+    <div class="blog-grid">
+      <div class="blog-card reveal">
+        <div class="blog-thumb">
+          <div class="blog-thumb-grid"></div>
+          <div class="blog-thumb-glow"></div>
+          <div class="blog-thumb-tag">Destacado</div>
+        </div>
+        <div class="blog-body">
+          <div class="blog-date">Marzo 2025</div>
+          <div class="blog-title">Cambios en el Apéndice 22 del SAT: ¿Cómo afectan tus importaciones en 2025?</div>
+          <p class="blog-excerpt">Analizamos las modificaciones recientes a la normativa del SAT y su impacto en la clasificación de mercancías de alto volumen.</p>
+        </div>
+      </div>
+      <div class="blog-card reveal">
+        <div class="blog-thumb">
+          <div class="blog-thumb-grid"></div>
+          <div class="blog-thumb-glow" style="background: radial-gradient(circle at 50% 60%, rgba(0,90,160,0.4), transparent 70%)"></div>
+          <div class="blog-thumb-tag">Guía</div>
+        </div>
+        <div class="blog-body">
+          <div class="blog-date">Febrero 2025</div>
+          <div class="blog-title">Guía completa: cómo obtener tu padrón de importadores</div>
+          <p class="blog-excerpt">Paso a paso para registrarte ante el SAT y comenzar a importar de manera legal y eficiente.</p>
+        </div>
+      </div>
+      <div class="blog-card reveal">
+        <div class="blog-thumb">
+          <div class="blog-thumb-grid"></div>
+          <div class="blog-thumb-glow" style="background: radial-gradient(circle at 50% 60%, rgba(20,184,166,0.4), transparent 70%)"></div>
+          <div class="blog-thumb-tag">Normativa</div>
+        </div>
+        <div class="blog-body">
+          <div class="blog-date">Enero 2025</div>
+          <div class="blog-title">IMMEX 2025: requisitos actualizados y beneficios fiscales</div>
+          <p class="blog-excerpt">Todo lo que necesitas saber sobre el programa IMMEX y cómo aprovechar sus ventajas en el nuevo ejercicio fiscal.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACTO -->
+  <section id="contacto">
+    <div class="contacto-inner">
+      <div class="contacto-left">
+        <div class="section-eyebrow reveal"><span class="eyebrow-accent">✦</span> Contacto</div>
+        <h2 class="section-title reveal">¿Listo para operar<br/><em>sin fronteras?</em></h2>
+        <p class="reveal">Nuestros asesores analizarán tu operación y propondrán la estrategia aduanal más eficiente para tu empresa. La primera consulta es sin costo.</p>
+        <div class="contacto-info">
+          <div class="contacto-item reveal">
+            <div class="contacto-icon">📍</div>
+            <div class="contacto-item-text">
+              <strong>Ubicación</strong>
+              <span>Ciudad de México y principales aduanas del país</span>
+            </div>
+          </div>
+          <div class="contacto-item reveal">
+            <div class="contacto-icon">📞</div>
+            <div class="contacto-item-text">
+              <strong>Teléfono</strong>
+              <span>+52 (55) 1234-5678</span>
+            </div>
+          </div>
+          <div class="contacto-item reveal">
+            <div class="contacto-icon">✉️</div>
+            <div class="contacto-item-text">
+              <strong>Correo electrónico</strong>
+              <a href="/cdn-cgi/l/email-protection#0a6965647e6b697e654a6d6f797e6578636b6b6b6b246772"><span class="__cf_email__" data-cfemail="7d1e1213091c1e09123d1a180e09120f141c1c1c1c531005">[email&#160;protected]</span></a>
+            </div>
+          </div>
+          <div class="contacto-item reveal">
+            <div class="contacto-icon">🕐</div>
+            <div class="contacto-item-text">
+              <strong>Horario de atención</strong>
+              <span>Lunes a Viernes, 8:00 — 18:00 hrs</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="contacto-form reveal">
+        <div class="form-title">Envíanos un mensaje</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Nombre</label>
+            <input type="text" class="form-input" placeholder="Tu nombre" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Empresa</label>
+            <input type="text" class="form-input" placeholder="Nombre de tu empresa" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Correo electrónico</label>
+          <input type="email" class="form-input" placeholder="correo@empresa.com" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tipo de operación</label>
+          <select class="form-select">
+            <option value="">Selecciona una opción</option>
+            <option>Importación</option>
+            <option>Exportación</option>
+            <option>Consultoría regulatoria</option>
+            <option>Auditoría aduanal</option>
+            <option>IMMEX</option>
+            <option>Otro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mensaje</label>
+          <textarea class="form-textarea" placeholder="Cuéntanos sobre tu operación o consulta..."></textarea>
+        </div>
+        <button class="btn-submit">Enviar mensaje →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="#" class="nav-logo" aria-label="Gestoría AAA, S.C.">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 963.2 130.4" style="height:28px;width:auto;display:block;" aria-hidden="true">
+            <g>
+              <path fill="rgba(26,43,60,0.7)" d="M12.86,9.71s-2.68-1.59-2.97.99v54.12l9.51-4.96.5-11.3,20.42-11.79,10.01,5.65,9.02-4.96L12.86,9.71ZM16.83,38.95l-.1-13.68c.2-5.05,4.36-2.18,4.36-2.18l11.1,6.84-15.36,9.02Z"/>
+              <path fill="rgba(26,43,60,0.7)" d="M9.18,118.88s-.03,3.11,2.35,2.08l46.82-27.13-9.06-5.75-10.02,5.24-20.44-11.75-.13-11.49-8.81-5.32-.71,54.13ZM32.49,100.79l-11.78,6.94c-4.47,2.36-4.07-2.68-4.07-2.68l.35-13.03,15.51,8.77Z"/>
+              <path fill="rgba(26,43,60,0.7)" d="M105.52,67.55s2.71-1.52.63-3.07l-46.87-27.05-.46,10.72,9.54,6.08v23.58s-9.89,5.85-9.89,5.85l-.23,10.23,47.28-26.33ZM78.22,56.37l11.9,6.75c4.28,2.7-.29,4.87-.29,4.87l-11.47,6.2-.13-17.81Z"/>
+            </g>
+            <text fill="rgba(26,43,60,0.7)" font-family="'Cabinet Grotesk','DM Sans',sans-serif" font-size="79" font-weight="700" transform="translate(123.01 94.87)">GESTORÍA  AAA, S.C.</text>
+          </svg>
+        </a>
+        <p>Gestoría aduanal especializada en importación y exportación para empresas mexicanas. Presencia en las principales aduanas del país.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Servicios</h4>
+        <ul>
+          <li><a href="#servicios">Importación</a></li>
+          <li><a href="#servicios">Exportación</a></li>
+          <li><a href="#servicios">Clasificación Arancelaria</a></li>
+          <li><a href="#servicios">Operaciones IMMEX</a></li>
+          <li><a href="#servicios">Asesoría Regulatoria</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Empresa</h4>
+        <ul>
+          <li><a href="#nosotros">Quiénes somos</a></li>
+          <li><a href="#valores">Nuestros valores</a></li>
+          <li><a href="#blog">Blog y recursos</a></li>
+          <li><a href="#contacto">Contacto</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="#">Aviso de privacidad</a></li>
+          <li><a href="#">Términos de servicio</a></li>
+          <li><a href="#">Código de ética</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 GESTORIA AAA, S.C. Todos los derechos reservados.</span>
+      <div class="footer-socials">
+        <a href="#">LinkedIn</a>
+        <a href="#">WhatsApp</a>
+        <a href="#">Privacidad</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.body.classList.add('js-ready');
+
+    // ── NAV SCROLL ────────────────────────────────────
+    const navbar = document.getElementById('navbar');
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          navbar.classList.toggle('scrolled', window.scrollY > 30);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    }, { passive: true });
+
+    // ── HAMBURGER TOGGLE ──────────────────────────────
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const openMenu  = () => { mobileMenu.classList.add('open'); hamburger.classList.add('active'); hamburger.setAttribute('aria-expanded','true'); document.body.style.overflow='hidden'; };
+    const closeMenu = () => { mobileMenu.classList.remove('open'); hamburger.classList.remove('active'); hamburger.setAttribute('aria-expanded','false'); document.body.style.overflow=''; };
+    hamburger.addEventListener('click', () => mobileMenu.classList.contains('open') ? closeMenu() : openMenu());
+    document.querySelectorAll('.mobile-link').forEach(l => l.addEventListener('click', closeMenu));
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
+
+    // ── SERVICIOS EXPANDIBLES ─────────────────────────
+    const serviciosData = {
+      importacion: {
+        title: 'Importación',
+        desc: 'Gestionamos el ingreso de mercancías al territorio nacional con total apego a la normativa del SAT y la Aduana. Nos encargamos de la clasificación arancelaria, elaboración del pedimento, gestión de permisos previos y liberación de mercancías en el menor tiempo posible.',
+        features: [
+          { icon: '📄', name: 'Pedimento Digital', desc: 'Elaboración y transmisión electrónica con validación inmediata ante el SAT.' },
+          { icon: '🔖', name: 'Clasificación', desc: 'Determinación precisa de fracción arancelaria para evitar multas y retrasos.' },
+          { icon: '🛃', name: 'Reconocimiento', desc: 'Acompañamiento durante el reconocimiento aduanero y segunda revisión.' },
+          { icon: '📦', name: 'Liberación exprés', desc: 'Estrategias para reducir tiempos de espera en aduana al mínimo posible.' },
+        ]
+      },
+      exportacion: {
+        title: 'Exportación',
+        desc: 'Facilitamos la salida de tus productos hacia cualquier destino del mundo, asegurando el cumplimiento de todas las regulaciones mexicanas e internacionales. Manejamos certificados de origen, documentación aduanal y coordinación con agentes en destino.',
+        features: [
+          { icon: '🌐', name: 'Certificados de origen', desc: 'Gestión de T-MEC y otros tratados para aprovechar preferencias arancelarias.' },
+          { icon: '📋', name: 'Documentación', desc: 'Factura comercial, packing list, BL y todos los documentos requeridos.' },
+          { icon: '🚢', name: 'Coordinación logística', desc: 'Enlace con navieras, aerolíneas y transportistas terrestres nacionales.' },
+          { icon: '⚡', name: 'Exportación temporal', desc: 'Asesoría en regímenes temporales IMMEX, ferias y exposiciones internacionales.' },
+        ]
+      },
+      clasificacion: {
+        title: 'Clasificación Arancelaria',
+        desc: 'La correcta clasificación de tus mercancías es la base de una operación eficiente y libre de contingencias. Nuestros especialistas determinan con precisión la fracción arancelaria conforme al Sistema Armonizado y la LIGIE vigente.',
+        features: [
+          { icon: '🔬', name: 'Análisis técnico', desc: 'Estudio detallado de la composición, función y uso de cada mercancía.' },
+          { icon: '📑', name: 'Criterios SAT', desc: 'Aplicación de resoluciones, criterios normativos y reglas de carácter general.' },
+          { icon: '⚖️', name: 'Dictámenes técnicos', desc: 'Emisión de dictámenes escritos con fundamento legal para cada clasificación.' },
+          { icon: '🛡️', name: 'Defensa aduanal', desc: 'Soporte ante revisiones y diferencias de criterio con la autoridad aduanera.' },
+        ]
+      },
+      immex: {
+        title: 'Operaciones IMMEX',
+        desc: 'Administramos integralmente tu programa IMMEX para que aproveches al máximo los beneficios fiscales de la industria manufacturera. Desde la inscripción inicial hasta los reportes anuales, garantizamos el cumplimiento ante la SHCP y la SE.',
+        features: [
+          { icon: '🏭', name: 'Inscripción y registro', desc: 'Trámite de alta ante la Secretaría de Economía y SHCP con toda la documentación.' },
+          { icon: '📊', name: 'Control de inventarios', desc: 'Sistema de registro y control de mercancías temporales conforme a la norma.' },
+          { icon: '📝', name: 'Reportes anuales', desc: 'Elaboración y presentación del reporte anual de operaciones IMMEX en tiempo.' },
+          { icon: '🔄', name: 'Ampliaciones', desc: 'Gestión de ampliaciones de programa, cambio de modalidad y renovaciones.' },
+        ]
+      },
+      asesoria: {
+        title: 'Asesoría Regulatoria',
+        desc: 'Orientamos a tu empresa en el cumplimiento de todas las regulaciones no arancelarias: NOMs, permisos de importación, cupos, registro sanitario y más. Prevenimos contingencias antes de que se conviertan en problemas costosos.',
+        features: [
+          { icon: '📜', name: 'NOMs y regulaciones', desc: 'Identificación y cumplimiento de Normas Oficiales Mexicanas aplicables.' },
+          { icon: '🏛️', name: 'Permisos previos', desc: 'Trámite de permisos ante COFEPRIS, SENASICA, SENER y otras dependencias.' },
+          { icon: '🌍', name: 'Tratados comerciales', desc: 'Asesoría en T-MEC, TLCUE y demás acuerdos comerciales suscritos por México.' },
+          { icon: '🔑', name: 'Padrón de importadores', desc: 'Alta y mantenimiento en el padrón de importadores y padrones sectoriales.' },
+        ]
+      },
+      auditoria: {
+        title: 'Auditoría Aduanal',
+        desc: 'Realizamos una revisión integral de tus operaciones aduanales previas para identificar riesgos fiscales, inconsistencias en clasificaciones y oportunidades de recuperación de pagos indebidos. Actuamos antes de que lo haga la autoridad.',
+        features: [
+          { icon: '🔍', name: 'Revisión de pedimentos', desc: 'Análisis exhaustivo de operaciones históricas para detectar inconsistencias.' },
+          { icon: '⚠️', name: 'Mapa de riesgos', desc: 'Identificación y cuantificación de contingencias fiscales y aduaneras.' },
+          { icon: '💰', name: 'Recuperación de pagos', desc: 'Detección y tramitación de devoluciones por pagos en exceso o indebidos.' },
+          { icon: '📋', name: 'Plan de corrección', desc: 'Programa de acción para regularizar operaciones y prevenir observaciones futuras.' },
+        ]
+      }
+    };
+
+    const cardRow = {
+      importacion: 1, exportacion: 1, clasificacion: 1,
+      immex: 2, asesoria: 2, auditoria: 2
+    };
+
+    function buildFeatures(features) {
+      return features.map(f => `
+        <div class="panel-feature">
+          <span class="panel-feature-icon">${f.icon}</span>
+          <div class="panel-feature-name">${f.name}</div>
+          <div class="panel-feature-desc">${f.desc}</div>
+        </div>
+      `).join('');
+    }
+
+    function openPanel(id, row) {
+      const data  = serviciosData[id];
+      const panel = document.getElementById(`panel-row-${row}`);
+      document.getElementById(`panel-row-${row}-title`).textContent    = data.title;
+      document.getElementById(`panel-row-${row}-desc`).textContent     = data.desc;
+      document.getElementById(`panel-row-${row}-features`).innerHTML   = buildFeatures(data.features);
+      panel.classList.add('open');
+
+      // Scroll solo si el panel queda parcialmente fuera del viewport
+      setTimeout(() => {
+        const rect = panel.getBoundingClientRect();
+        const inView = rect.top >= 0 && rect.bottom <= window.innerHeight;
+        if (!inView) panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 420); // esperar a que la transición CSS (0.4s) termine
+    }
+
+    function closePanel(row) {
+      document.getElementById(`panel-row-${row}`).classList.remove('open');
+    }
+
+    document.querySelectorAll('.servicio-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const id  = card.dataset.servicio;
+        const row = cardRow[id];
+
+        if (card.classList.contains('active')) {
+          card.classList.remove('active');
+          closePanel(row);
+          return;
+        }
+
+        // Desactivar otras cards de la misma fila
+        document.querySelectorAll('.servicio-card').forEach(c => {
+          if (cardRow[c.dataset.servicio] === row) c.classList.remove('active');
+        });
+
+        card.classList.add('active');
+        openPanel(id, row);
+      });
+    });
+
+    // ── REVEAL ANIMATIONS ─────────────────────────────
+    // Asignar orden de aparición en el DOM para stagger consistente
+    let revealIndex = 0;
+    document.querySelectorAll('.reveal').forEach(el => {
+      el.dataset.revealIdx = revealIndex++;
+    });
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const idx = parseInt(entry.target.dataset.revealIdx) || 0;
+          // Stagger leve solo dentro de la sección visible (máx 160ms)
+          const delay = Math.min((idx % 6) * 35, 160);
+          setTimeout(() => entry.target.classList.add('visible'), delay);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // ── FORM SUBMIT ───────────────────────────────────
+    const btnSubmit = document.querySelector('.btn-submit');
+    if (btnSubmit) {
+      btnSubmit.addEventListener('click', () => {
+        btnSubmit.textContent = '✓ Mensaje enviado';
+        btnSubmit.style.background = 'linear-gradient(135deg, var(--blue-2), var(--cyan))';
+        setTimeout(() => {
+          btnSubmit.textContent = 'Enviar mensaje →';
+          btnSubmit.style.background = '';
+        }, 3000);
+      });
+    }
+  </script>
+</body>
+</html>
